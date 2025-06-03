@@ -1,0 +1,12 @@
+pyautogui
+pyperclip
+pyzbar
+Pillow
+opencv-python
+webbrowser
+imaplib2
+email
+pyttsx3
+speechrecognition
+pyaudio
+tk
