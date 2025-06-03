@@ -1,48 +1,33 @@
-name: Build Android APK
+name: Android Build
 
 on:
   push:
-    branches: [ main ]
-  workflow_dispatch:
+    branches:
+      - main
 
 jobs:
   build:
+    name: Build APK
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.9'
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
 
-    - name: Install dependencies
-      run: |
-        sudo apt update
-        sudo apt install -y zip unzip openjdk-17-jdk
-        pip install buildozer cython
+      - name: Grant execute permission to Gradle
+        run: chmod +x ./gradlew
 
-    - name: Initialize buildozer
-      run: |
-        pip install buildozer
-        buildozer init
+      - name: Build debug APK
+        run: ./gradlew assembleDebug
 
-    - name: Modify buildozer.spec
-      run: |
-        sed -i 's/^source.include_exts.*/source.include_exts = py,kv/' buildozer.spec
-        sed -i 's/^requirements.*/requirements = python3,kivy/' buildozer.spec
-        sed -i 's/^title.*/title = WebinarApp/' buildozer.spec
-        sed -i 's/^package.name.*/package.name = webinarapp/' buildozer.spec
-        sed -i 's/^package.domain.*/package.domain = org.example/' buildozer.spec
-        sed -i 's/^# android.permissions.*/android.permissions = INTERNET/' buildozer.spec
-
-    - name: Build APK
-      run: buildozer -v android debug
-
-    - name: Upload APK
-      uses: actions/upload-artifact@v3
-      with:
-        name: webinar-app-apk
-        path: bin/*.apk
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: webinar-app-debug-apk
+          path: app/build/outputs/apk/debug/app-debug.apk
